@@ -1,6 +1,6 @@
 # DemonCraft Launcher
 
-Launcher del servidor DemonCraft (Kimetsu no Yaiba RP, Minecraft 1.20.1 + Forge). Funciona como CurseForge: al pulsar
+Launcher del servidor DemonCraft (Minecraft 1.20.1 + Forge). Funciona como CurseForge: al pulsar
 **Jugar** instala o actualiza el pack de mods, deja Forge y un perfil «DemonCraft» en el **launcher oficial de
 Minecraft** y lo abre; el jugador entra con su cuenta de Microsoft y pulsa Jugar. El perfil lleva la entrada directa
 al servidor (`--quickPlayMultiplayer`), así que el juego arranca ya dentro.

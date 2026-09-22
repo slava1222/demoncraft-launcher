@@ -57,8 +57,8 @@ def make_logo():
     img.paste(grad, (0, 0), mask)
     # filete y subtitulo
     d = ImageDraw.Draw(img)
-    d.line([(36, 250), (600, 250)], fill=GOLD + (160,), width=2)
-    d.text((38, 256), "KIMETSU NO YAIBA  ·  ROLEPLAY", font=small, fill=(200, 185, 160, 255))
+    d.line([(36, 250), (760, 250)], fill=GOLD + (160,), width=2)
+    d.text((38, 256), "LA NOCHE ES DE LOS DEMONIOS  ·  EL AMANECER, TUYO", font=small, fill=(200, 185, 160, 255))
     img.save(os.path.join(ASSETS, "logo.png"))
 
 
