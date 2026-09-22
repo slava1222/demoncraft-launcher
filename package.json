@@ -1,0 +1,25 @@
+{
+  "name": "demoncraft-launcher",
+  "productName": "DemonCraft Launcher",
+  "version": "1.0.0",
+  "description": "Launcher oficial de DemonCraft: instala y actualiza el pack de mods y abre Minecraft con el servidor listo.",
+  "main": "src/main/main.js",
+  "author": "DemonCraft",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^44.4.3",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "electron-log": "^5.4.4",
+    "electron-updater": "^6.8.9",
+    "prismarine-nbt": "^2.8.0"
+  }
+}

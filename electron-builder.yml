@@ -1,0 +1,30 @@
+appId: es.demoncraft.launcher
+productName: DemonCraft Launcher
+copyright: DemonCraft
+directories:
+  output: dist
+  buildResources: build
+files:
+  - src/**/*
+  - assets/**/*
+  - package.json
+asar: true
+win:
+  target:
+    - nsis
+  icon: build/icon.ico
+  artifactName: DemonCraft-Launcher-Setup-${version}.${ext}
+nsis:
+  oneClick: true
+  perMachine: false
+  allowToChangeInstallationDirectory: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: DemonCraft
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  deleteAppDataOnUninstall: false
+publish:
+  provider: github
+  owner: slava1222
+  repo: demoncraft-launcher

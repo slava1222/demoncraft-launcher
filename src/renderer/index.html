@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+    <title>DemonCraft Launcher</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="bg"></div>
+    <div id="mist"></div>
+
+    <header id="titlebar">
+        <div class="title-left">
+            <span class="kanji">鬼殺隊</span>
+            <span class="title-text">DemonCraft Launcher</span>
+            <span id="launcher-version" class="muted"></span>
+        </div>
+        <div class="window-buttons">
+            <button id="btn-min" title="Minimizar">─</button>
+            <button id="btn-close" title="Cerrar">✕</button>
+        </div>
+    </header>
+
+    <main id="app">
+        <section id="left">
+            <img id="logo" src="../../assets/logo.png" alt="DemonCraft">
+            <p id="tagline">Kimetsu no Yaiba RP · Minecraft <span id="mc-version">1.20.1</span> · Forge <span id="forge-version">47.4.10</span></p>
+
+            <div id="status-card">
+                <div id="status-line">Preparando...</div>
+                <div id="progress"><div id="progress-fill"></div></div>
+                <div id="progress-detail" class="muted"></div>
+            </div>
+
+            <div id="error" class="hidden">
+                <div id="error-text"></div>
+                <button id="btn-retry" class="ghost">Reintentar</button>
+            </div>
+
+            <div id="actions">
+                <button id="btn-play" disabled><span class="play-kanji">参</span><span class="play-text">JUGAR</span></button>
+                <div id="secondary">
+                    <button id="btn-folder" class="ghost">Carpeta del pack</button>
+                    <button id="btn-settings" class="ghost">Ajustes</button>
+                </div>
+            </div>
+
+            <div id="settings" class="hidden">
+                <label for="ram">Memoria para el juego: <strong id="ram-value">4 GB</strong></label>
+                <input id="ram" type="range" min="2" max="12" step="1" value="4">
+                <p class="muted">Se aplica al perfil de DemonCraft en el launcher oficial. Con 8 GB de RAM en el equipo, 4 GB es lo justo.</p>
+                <p class="muted" id="game-dir"></p>
+            </div>
+
+            <div id="no-launcher" class="hidden">
+                <p>Este equipo no tiene el <strong>launcher oficial de Minecraft</strong>. Instalalo y vuelve a pulsar Jugar.</p>
+                <button id="btn-get-launcher" class="ghost">Descargar Minecraft Launcher</button>
+            </div>
+        </section>
+
+        <aside id="right">
+            <div class="panel">
+                <h2>Servidor</h2>
+                <div class="row"><span class="muted">Direccion</span><span id="server-address">—</span></div>
+                <div class="row"><span class="muted">Pack</span><span id="pack-version">—</span></div>
+                <div class="row"><span class="muted">Launcher</span><span id="launcher-kind">—</span></div>
+                <div id="links">
+                    <button id="link-discord" class="link hidden">Discord</button>
+                    <button id="link-store" class="link hidden">Tienda</button>
+                    <button id="link-web" class="link hidden">Web</button>
+                </div>
+            </div>
+            <div class="panel grow">
+                <h2>Novedades</h2>
+                <div id="news"><p class="muted">Sin novedades todavia.</p></div>
+            </div>
+            <div id="update-banner" class="hidden">
+                <span>Hay una version nueva del launcher.</span>
+                <button id="btn-update" class="ghost">Instalar y reiniciar</button>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        <span class="muted">Al pulsar Jugar se instala o actualiza el pack y se abre el launcher oficial de Minecraft con el perfil DemonCraft listo: entra con tu cuenta y pulsa Jugar.</span>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
