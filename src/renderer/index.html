@@ -49,8 +49,9 @@
             <div id="settings" class="hidden">
                 <label for="ram">Memoria para el juego: <strong id="ram-value">4 GB</strong></label>
                 <input id="ram" type="range" min="2" max="12" step="1" value="4">
-                <p class="muted">Se aplica al perfil de DemonCraft en el launcher oficial. Con 8 GB de RAM en el equipo, 4 GB es lo justo.</p>
+                <label class="check"><input id="use-official" type="checkbox"> Abrir el launcher oficial de Minecraft en vez de arrancar el juego aqui</label>
                 <p class="muted" id="game-dir"></p>
+                <button id="btn-log" class="ghost small">Ver el ultimo log del juego</button>
             </div>
 
             <div id="no-launcher" class="hidden">
@@ -60,6 +61,14 @@
         </section>
 
         <aside id="right">
+            <div class="panel" id="account-panel">
+                <h2>Cuenta</h2>
+                <div id="account-line" class="muted">Sin cuenta conectada</div>
+                <div id="account-buttons">
+                    <button id="btn-login" class="link">Iniciar sesion con Microsoft</button>
+                    <button id="btn-logout" class="link hidden">Cerrar sesion</button>
+                </div>
+            </div>
             <div class="panel">
                 <h2>Servidor</h2>
                 <div class="row"><span class="muted">Direccion</span><span id="server-address">—</span></div>
@@ -83,7 +92,7 @@
     </main>
 
     <footer>
-        <span class="muted">Al pulsar Jugar se instala o actualiza el pack y se abre el launcher oficial de Minecraft con el perfil DemonCraft listo: entra con tu cuenta y pulsa Jugar.</span>
+        <span class="muted" id="footer-text">Al pulsar Jugar se instala o actualiza el pack y se arranca Minecraft con tu cuenta de Microsoft, directo al servidor.</span>
     </footer>
 
     <script src="app.js"></script>

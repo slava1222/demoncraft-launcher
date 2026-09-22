@@ -1,17 +1,19 @@
 "use strict";
-// La secuencia completa de "Jugar": manifest -> archivos del pack -> Java -> Forge -> version propia -> perfil ->
-// servidor en la lista -> abrir el launcher oficial. Cada paso informa por `report` para la barra de progreso.
+// Las secuencias completas. `prepare`: manifest -> archivos del pack -> Java -> Forge -> version propia -> perfil ->
+// servidor en la lista. `play`: prepare y abrir el launcher oficial. `launchDirect`: prepare, resolver la version,
+// bajar librerias y recursos y arrancar el juego con la cuenta de Microsoft. Cada paso informa por `report`.
 const fs = require("fs");
 const path = require("path");
 const config = require("./config");
 const stateStore = require("./state");
-const { fetchManifest } = require("./manifest");
+const { fetchManifest, cachePath } = require("./manifest");
 const { syncPack } = require("./sync");
 const { ensureJava } = require("./java");
 const { ensureForge, writeCustomVersion } = require("./forge");
-const { upsertProfile } = require("./profiles");
+const { upsertProfile, defaultRamGb } = require("./profiles");
 const { ensureServer } = require("./servers");
 const launcher = require("./launcher");
+const launch = require("./launch");
 
 const STEPS = [
     { id: "manifest", label: "Comprobando la version del pack" },
@@ -19,11 +21,12 @@ const STEPS = [
     { id: "java", label: "Comprobando Java" },
     { id: "forge", label: "Comprobando Forge" },
     { id: "profile", label: "Preparando el perfil y el servidor" },
+    { id: "game", label: "Preparando Minecraft" },
 ];
 
-async function prepare({ gameDir = config.gameDir, minecraftDir = config.minecraftDir, assetsDir, report = () => {}, signal } = {}) {
+async function prepare({ gameDir = config.gameDir, minecraftDir = config.minecraftDir, assetsDir, report = () => {}, signal, totalSteps = 5 } = {}) {
     const state = stateStore.load(gameDir);
-    const step = (index, extra) => report(Object.assign({ step: index, steps: STEPS.length, label: STEPS[index].label }, extra || {}));
+    const step = (index, extra) => report(Object.assign({ step: index, steps: totalSteps, label: STEPS[index].label }, extra || {}));
 
     step(0, { message: "Pidiendo la lista del pack..." });
     const { manifest, offline, error } = await fetchManifest({ gameDir, signal });
@@ -49,8 +52,8 @@ async function prepare({ gameDir = config.gameDir, minecraftDir = config.minecra
     stateStore.save(state, gameDir);
 
     const found = launcher.findLauncher();
-    report({ step: STEPS.length - 1, steps: STEPS.length, label: "Listo", message: "Todo listo", finished: true });
-    return { manifest, offline, sync, forge, versionId, serverAdded, launcher: found, javaExe };
+    if (totalSteps === 5) report({ step: 4, steps: totalSteps, label: "Listo", message: "Todo listo", finished: true });
+    return { manifest, offline, sync, forge, versionId, serverAdded, launcher: found, javaExe, state };
 }
 
 async function play(options = {}) {
@@ -64,9 +67,30 @@ async function play(options = {}) {
     return result;
 }
 
+/**
+ * Arranque directo con la cuenta de Microsoft. `session` = { name, uuid, accessToken, xuid } ya validada.
+ * Devuelve el proceso del juego y el archivo de log.
+ */
+async function launchDirect({ session, launcherVersion = "1.0.0", gameDir = config.gameDir, minecraftDir = config.minecraftDir, assetsDir, report = () => {}, signal } = {}) {
+    const result = await prepare({ gameDir, minecraftDir, assetsDir, report, signal, totalSteps: 6 });
+    const manifest = result.manifest;
+    const step = (extra) => report(Object.assign({ step: 5, steps: 6, label: STEPS[5].label }, extra || {}));
+    step({ message: "Buscando Java 17..." });
+    const javaExe = await ensureJava({ gameDir, minecraftDir, state: result.state, only17: true, signal, report: (p) => step(p) });
+    stateStore.save(result.state, gameDir);
+    const ramGb = result.state.settings.maxRamGb || defaultRamGb(manifest);
+    const quickPlay = manifest.server && manifest.server.address ? String(manifest.server.address).trim() : "";
+    const spec = await launch.buildLaunch({ manifest, minecraftDir, gameDir, javaExe, session, ramGb, quickPlay, launcherVersion, signal, report: (p) => step(p) });
+    const logFile = path.join(gameDir, ".launcher", "logs", "juego.log");
+    step({ message: "Arrancando Minecraft..." });
+    const child = launch.startGame(spec, { logFile });
+    report({ step: 5, steps: 6, label: "Jugando", message: "Minecraft en marcha" + (quickPlay ? ", entrando en " + quickPlay : ""), finished: true });
+    return Object.assign(result, { child, logFile, quickPlay, spec: { javaExe, args: spec.args.length, libraries: spec.libraries } });
+}
+
 function status({ gameDir = config.gameDir, minecraftDir = config.minecraftDir } = {}) {
     const state = stateStore.load(gameDir);
-    const cached = stateStore.readJsonSafe(require("./manifest").cachePath(gameDir));
+    const cached = stateStore.readJsonSafe(cachePath(gameDir));
     return {
         gameDir,
         minecraftDir,
@@ -86,4 +110,4 @@ function saveSettings(settings, { gameDir = config.gameDir } = {}) {
     return state.settings;
 }
 
-module.exports = { prepare, play, status, saveSettings, STEPS };
+module.exports = { prepare, play, launchDirect, status, saveSettings, STEPS };

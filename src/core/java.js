@@ -1,7 +1,7 @@
 "use strict";
-// Java solo hace falta para ejecutar el instalador de Forge (el juego lo arranca el launcher oficial con su propio
-// Java). Primero se busca el que ya trae el launcher oficial (java-runtime-delta = 21, gamma = 17); si no hay ninguno,
-// se descarga un JRE 17 de Adoptium en la carpeta del launcher.
+// Java para el instalador de Forge y para arrancar el juego (Forge 1.20.1 quiere Java 17). Primero el que ya trae el
+// launcher oficial (java-runtime-gamma = 17; delta = 21 vale para el instalador); si no hay ninguno, se descarga un
+// JRE 17 de Adoptium en la carpeta del launcher.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -34,9 +34,11 @@ function works(javaExe) {
     }
 }
 
-function findLauncherJava(minecraftDir = config.minecraftDir) {
+/** El Java del launcher oficial. `only17` exige la version 17 (para arrancar el juego). */
+function findLauncherJava(minecraftDir = config.minecraftDir, { only17 = false } = {}) {
+    const names = only17 ? ["java-runtime-gamma"] : ["java-runtime-gamma", "java-runtime-delta"];
     for (const base of runtimeBases(minecraftDir)) {
-        for (const name of ["java-runtime-delta", "java-runtime-gamma"]) {
+        for (const name of names) {
             for (const arch of ["windows-x64", "windows-x86"]) {
                 const exe = path.join(base, name, arch, name, "bin", "java.exe");
                 if (fs.existsSync(exe) && works(exe)) return exe;
@@ -55,15 +57,15 @@ function findExtractedJava(dir) {
     return null;
 }
 
-async function ensureJava({ gameDir = config.gameDir, minecraftDir = config.minecraftDir, state, report = () => {}, signal } = {}) {
-    const fromLauncher = findLauncherJava(minecraftDir);
+async function ensureJava({ gameDir = config.gameDir, minecraftDir = config.minecraftDir, state, only17 = false, report = () => {}, signal } = {}) {
+    const fromLauncher = findLauncherJava(minecraftDir, { only17 });
     if (fromLauncher) return fromLauncher;
     if (state && state.javaPath && fs.existsSync(state.javaPath) && works(state.javaPath)) return state.javaPath;
     const runtimeDir = path.join(stateStore.launcherDir(gameDir), "runtime");
     const already = findExtractedJava(runtimeDir);
     if (already && works(already)) return already;
 
-    report({ phase: "java", message: "Descargando Java 17 (solo para instalar Forge)...", done: 0, total: 0 });
+    report({ phase: "java", message: "Descargando Java 17...", done: 0, total: 0 });
     const zipPath = path.join(stateStore.launcherDir(gameDir), "temurin-17-jre.zip");
     await download(TEMURIN_URL, zipPath, { signal, onProgress: (received, total) => report({ phase: "java", message: "Descargando Java 17...", done: received, total }) });
     report({ phase: "java", message: "Instalando Java 17..." });

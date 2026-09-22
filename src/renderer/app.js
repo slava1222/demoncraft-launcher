@@ -1,10 +1,12 @@
 "use strict";
-// La interfaz: pide el estado, lanza la preparacion al abrir, pinta el progreso y el boton Jugar.
+// La interfaz: pide el estado, prepara el pack al abrir, pinta el progreso, la cuenta y el boton Jugar.
 const $ = (id) => document.getElementById(id);
 const api = window.demoncraft;
 
 let busy = false;
-let launcherKind = null;
+let gameRunning = false;
+let accountEnabled = false;
+let profile = null;
 let launcherDownloadUrl = "https://www.minecraft.net/es-es/download";
 let links = {};
 
@@ -42,10 +44,15 @@ function hideError() {
     $("error").classList.add("hidden");
 }
 
-function setBusy(value, label) {
+function refreshPlayButton() {
+    const btn = $("btn-play");
+    btn.disabled = busy || gameRunning;
+    btn.querySelector(".play-text").textContent = gameRunning ? "JUGANDO" : busy ? "PREPARANDO" : "JUGAR";
+}
+
+function setBusy(value) {
     busy = value;
-    $("btn-play").disabled = value;
-    $("btn-play").querySelector(".play-text").textContent = value ? (label || "PREPARANDO") : "JUGAR";
+    refreshPlayButton();
     if (!value) setProgress(0, 0);
 }
 
@@ -80,15 +87,38 @@ function renderManifest(m) {
 }
 
 function renderLauncher(kind) {
-    launcherKind = kind;
     const names = { exe: "instalado", store: "Microsoft Store" };
     $("launcher-kind").textContent = kind ? names[kind] || kind : "no encontrado";
-    if (kind) $("no-launcher").classList.add("hidden"); else $("no-launcher").classList.remove("hidden");
+    const needOfficial = !accountEnabled || !profile || $("use-official").checked;
+    if (kind || !needOfficial) $("no-launcher").classList.add("hidden"); else $("no-launcher").classList.remove("hidden");
+}
+
+function renderAccount() {
+    const panel = $("account-panel");
+    if (!accountEnabled) {
+        panel.classList.add("hidden");
+        $("footer-text").textContent = "Al pulsar Jugar se instala o actualiza el pack y se abre el launcher oficial de Minecraft con el perfil DemonCraft listo: entra con tu cuenta y pulsa Jugar.";
+        return;
+    }
+    panel.classList.remove("hidden");
+    if (profile) {
+        $("account-line").textContent = "Conectado como " + profile.name;
+        $("account-line").className = "ok";
+        $("btn-login").classList.add("hidden");
+        $("btn-logout").classList.remove("hidden");
+        $("footer-text").textContent = "Al pulsar Jugar se instala o actualiza el pack y se arranca Minecraft con tu cuenta, directo al servidor.";
+    } else {
+        $("account-line").textContent = "Sin cuenta conectada: inicia sesion para jugar desde aqui, o usa el launcher oficial";
+        $("account-line").className = "muted";
+        $("btn-login").classList.remove("hidden");
+        $("btn-logout").classList.add("hidden");
+        $("footer-text").textContent = "Inicia sesion con tu cuenta de Microsoft para arrancar el juego desde aqui; sin cuenta, Jugar abre el launcher oficial.";
+    }
 }
 
 api.onProgress((p) => {
     const label = p.label ? p.label + (p.message ? ": " : "") : "";
-    setStatus(label + (p.message || ""), p.warning ? "warn" : "");
+    setStatus(label + (p.message || ""), p.warning ? "warn" : p.finished ? "ok" : "");
     if (p.step != null && p.steps) {
         const detail = [];
         detail.push("Paso " + Math.min(p.step + 1, p.steps) + " de " + p.steps);
@@ -99,28 +129,49 @@ api.onProgress((p) => {
     else setProgress(0, 0);
 });
 
+api.onGameExit((info) => {
+    gameRunning = false;
+    refreshPlayButton();
+    if (info && info.code && info.code !== 0) {
+        setStatus("Minecraft se cerro con un error (codigo " + info.code + ")", "warn");
+        showError("El juego termino con el codigo " + info.code + ". Mira el log desde Ajustes → Ver el ultimo log del juego.");
+    } else {
+        setStatus("Minecraft cerrado. Hasta la proxima.", "");
+    }
+});
+
 api.onLauncherUpdate(() => $("update-banner").classList.remove("hidden"));
 
+function cleanMessage(err) {
+    return String(err && err.message || err).replace(/^Error invoking remote method '[\w:-]+': (Error: )?/, "");
+}
+
 async function runPrepare(kind) {
-    if (busy) return;
+    if (busy || (kind === "play" && gameRunning)) return;
     hideError();
-    setBusy(true, kind === "play" ? "ABRIENDO" : "PREPARANDO");
+    setBusy(true);
     setStatus(kind === "play" ? "Preparando el juego..." : "Comprobando el pack...");
     try {
         const result = kind === "play" ? await api.play() : await api.prepare();
         renderManifest(result);
-        renderLauncher(result.launcher);
         if (result.launcherDownloadUrl) launcherDownloadUrl = result.launcherDownloadUrl;
+        renderLauncher(result.launcher);
         const parts = [];
         if (result.downloaded) parts.push(result.downloaded + " archivo(s) actualizado(s)");
         if (result.forgeInstalledNow) parts.push("Forge instalado");
         const suffix = parts.length ? " (" + parts.join(", ") + ")" : "";
-        if (kind === "play") setStatus("Launcher de Minecraft abierto: entra con tu cuenta y pulsa Jugar" + suffix, "ok");
-        else setStatus((result.offline ? "Sin conexion: pack " : "Pack ") + result.pack.version + " listo" + suffix, result.offline ? "warn" : "ok");
+        if (kind === "play" && result.mode === "direct") {
+            gameRunning = true;
+            setStatus("Minecraft en marcha" + (result.quickPlay ? ", entrando en el servidor" : "") + suffix, "ok");
+        } else if (kind === "play") {
+            setStatus("Launcher de Minecraft abierto: entra con tu cuenta y pulsa Jugar" + suffix, "ok");
+        } else {
+            setStatus((result.offline ? "Sin conexion: pack " : "Pack ") + result.pack.version + " listo" + suffix, result.offline ? "warn" : "ok");
+        }
         $("progress-detail").textContent = "";
     } catch (err) {
-        const msg = String(err && err.message || err).replace(/^Error invoking remote method '\w+': Error: /, "");
-        if (/NO_LAUNCHER|launcher oficial/i.test(msg)) renderLauncher(null);
+        const msg = cleanMessage(err);
+        if (/NO_LAUNCHER|launcher oficial de Minecraft\. Instalalo/i.test(msg)) renderLauncher(null);
         setStatus("No se pudo completar", "warn");
         showError(msg);
     } finally {
@@ -128,31 +179,65 @@ async function runPrepare(kind) {
     }
 }
 
+async function doLogin() {
+    if (busy) return;
+    hideError();
+    try {
+        profile = await api.login();
+        renderAccount();
+        setStatus("Cuenta conectada: " + profile.name, "ok");
+    } catch (err) {
+        const msg = cleanMessage(err);
+        if (!/cancelado/i.test(msg)) showError(msg);
+    }
+}
+
+async function doLogout() {
+    await api.logout();
+    profile = null;
+    renderAccount();
+    setStatus("Sesion cerrada", "");
+}
+
 async function init() {
     const s = await api.status();
     $("launcher-version").textContent = "v" + s.version;
     $("game-dir").textContent = "Carpeta del pack: " + s.gameDir;
     if (s.launcherDownloadUrl) launcherDownloadUrl = s.launcherDownloadUrl;
-    renderManifest(s.manifest);
-    renderLauncher(s.launcher);
+    accountEnabled = Boolean(s.account && s.account.enabled);
+    profile = s.account ? s.account.profile : null;
+    gameRunning = Boolean(s.gameRunning);
     const ram = s.settings && s.settings.maxRamGb ? s.settings.maxRamGb : 4;
     $("ram").value = ram;
     $("ram-value").textContent = ram + " GB";
+    $("use-official").checked = Boolean(s.settings && s.settings.useOfficialLauncher);
+    renderAccount();
+    renderManifest(s.manifest);
+    renderLauncher(s.launcher);
+    refreshPlayButton();
     await runPrepare("prepare");
+}
+
+function saveSettings() {
+    return api.setSettings({ maxRamGb: Number($("ram").value), useOfficialLauncher: $("use-official").checked });
 }
 
 $("btn-play").addEventListener("click", () => runPrepare("play"));
 $("btn-retry").addEventListener("click", () => runPrepare("prepare"));
 $("btn-folder").addEventListener("click", () => api.openFolder());
+$("btn-log").addEventListener("click", () => api.openLog());
 $("btn-settings").addEventListener("click", () => $("settings").classList.toggle("hidden"));
 $("btn-get-launcher").addEventListener("click", () => api.openLink(launcherDownloadUrl));
 $("btn-update").addEventListener("click", () => api.installLauncherUpdate());
+$("btn-login").addEventListener("click", doLogin);
+$("btn-logout").addEventListener("click", doLogout);
 $("btn-min").addEventListener("click", () => api.minimize());
 $("btn-close").addEventListener("click", () => api.close());
 $("ram").addEventListener("input", () => { $("ram-value").textContent = $("ram").value + " GB"; });
-$("ram").addEventListener("change", async () => { await api.setSettings({ maxRamGb: Number($("ram").value) }); });
+$("ram").addEventListener("change", saveSettings);
+$("use-official").addEventListener("change", async () => { await saveSettings(); renderLauncher($("launcher-kind").textContent === "no encontrado" ? null : "exe"); });
 for (const key of ["discord", "store", "web"]) {
     $("link-" + key).addEventListener("click", () => { if (links[key]) api.openLink(links[key]); });
 }
 
-init().catch((err) => showError(String(err && err.message || err)));
+init().catch((err) => showError(cleanMessage(err)));

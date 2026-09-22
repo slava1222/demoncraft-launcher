@@ -1,9 +1,17 @@
 # DemonCraft Launcher
 
-Launcher del servidor DemonCraft (Minecraft 1.20.1 + Forge). Funciona como CurseForge: al pulsar
-**Jugar** instala o actualiza el pack de mods, deja Forge y un perfil «DemonCraft» en el **launcher oficial de
-Minecraft** y lo abre; el jugador entra con su cuenta de Microsoft y pulsa Jugar. El perfil lleva la entrada directa
-al servidor (`--quickPlayMultiplayer`), así que el juego arranca ya dentro.
+Launcher del servidor DemonCraft (Minecraft 1.20.1 + Forge). Al pulsar **Jugar** instala o actualiza el pack de
+mods y arranca el juego dentro del servidor. Dos modos:
+
+- **Arranque directo** (cuando hay cuenta conectada): inicio de sesión oficial con Microsoft dentro del launcher
+  (OAuth 2 con PKCE → Xbox Live → XSTS → servicios de Minecraft), descarga de Minecraft, librerías y recursos
+  compartiendo el `.minecraft` del launcher oficial, y el juego arranca con `--quickPlayMultiplayer` hacia el
+  servidor. Solo cuentas con Minecraft Java Edition: **no hay modo sin cuenta**. Requiere que Mojang haya aprobado
+  el id de cliente de Azure del launcher (`AZURE_CLIENT_ID` en `src/core/config.js`; formulario en
+  https://aka.ms/mce-reviewappid). El token de renovación se guarda cifrado con el almacén del sistema (DPAPI).
+- **Launcher oficial** (sin cuenta conectada, sin id aprobado, o si el jugador lo marca en Ajustes): como CurseForge,
+  deja Forge y un perfil «DemonCraft» en el launcher oficial de Minecraft y lo abre; el jugador entra ahí con su
+  cuenta y pulsa Jugar. El perfil también lleva la entrada directa al servidor.
 
 - Carpeta del pack: `%APPDATA%\.demoncraft` (mods, texturas, partidas, opciones). No toca el `.minecraft` vanilla del
   jugador salvo para instalar la versión de Forge y el perfil.

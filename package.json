@@ -1,7 +1,7 @@
 {
   "name": "demoncraft-launcher",
   "productName": "DemonCraft Launcher",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Launcher oficial de DemonCraft: instala y actualiza el pack de mods y abre Minecraft con el servidor listo.",
   "main": "src/main/main.js",
   "author": "DemonCraft",

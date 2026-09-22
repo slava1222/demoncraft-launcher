@@ -153,3 +153,10 @@ footer { position: relative; z-index: 1; height: 44px; display: flex; align-item
 
 .muted { color: var(--muted); }
 .hidden { display: none !important; }
+
+/* cuenta y ajustes (arranque directo) */
+#account-line.ok { color: var(--ok); }
+#account-buttons { margin-top: 8px; display: flex; gap: 8px; }
+label.check { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 13px; cursor: pointer; }
+label.check input { accent-color: var(--gold); }
+button.ghost.small { margin-top: 10px; font-size: 12px; padding: 5px 10px; }
