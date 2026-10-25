@@ -27,6 +27,31 @@
             <img id="logo" src="../../assets/logo.png" alt="DemonCraft">
             <p id="tagline">La noche es de los demonios. El amanecer, tuyo. · Minecraft <span id="mc-version">1.20.1</span> · Forge <span id="forge-version">47.4.10</span></p>
 
+            <!-- 1.1.0: la primera vez se pregunta como juega (launcher oficial u otro launcher) -->
+            <div id="mode-pick" class="hidden">
+                <h2 class="pick-title">¿Cómo juegas a Minecraft?</h2>
+                <div id="pick-modes">
+                    <button class="mode-card" data-mode="oficial">
+                        <span class="mode-name">Con cuenta de Microsoft</span>
+                        <span class="mode-desc">Con el launcher oficial de Minecraft. DemonCraft instala el pack y te lo abre con el servidor listo.</span>
+                    </button>
+                    <button class="mode-card" data-mode="otro">
+                        <span class="mode-name">Con otro launcher</span>
+                        <span class="mode-desc">Sin cuenta premium o con otro launcher (TLauncher, SKLauncher...). DemonCraft pone el pack en la carpeta de tu launcher y juegas desde él.</span>
+                    </button>
+                </div>
+                <div id="pick-dir" class="hidden">
+                    <p class="pick-question">¿Dónde guarda tu launcher el juego?</p>
+                    <div class="dir-line"><span id="pick-dir-path"></span><button id="btn-pick-change" class="ghost">Cambiar</button></div>
+                    <p id="pick-dir-note" class="muted"></p>
+                    <div class="pick-buttons">
+                        <button id="btn-pick-go" class="gold">Poner el pack aquí</button>
+                        <button id="btn-pick-back" class="ghost">Volver</button>
+                    </div>
+                </div>
+                <p class="muted pick-foot">Puedes cambiarlo cuando quieras en Ajustes.</p>
+            </div>
+
             <div id="status-card">
                 <div id="status-line">Preparando...</div>
                 <div id="progress"><div id="progress-fill"></div></div>
@@ -38,6 +63,12 @@
                 <button id="btn-retry" class="ghost">Reintentar</button>
             </div>
 
+            <!-- 1.1.0: con otro launcher, lo que hay que hacer despues de actualizar -->
+            <div id="other-help" class="hidden">
+                <p id="other-help-text"></p>
+                <p id="other-moved" class="muted hidden"></p>
+            </div>
+
             <div id="actions">
                 <button id="btn-play" disabled><span class="play-kanji">参</span><span class="play-text">JUGAR</span></button>
                 <div id="secondary">
@@ -47,22 +78,34 @@
             </div>
 
             <div id="settings" class="hidden">
-                <label for="ram">Memoria para el juego: <strong id="ram-value">4 GB</strong></label>
-                <input id="ram" type="range" min="2" max="12" step="1" value="4">
-                <p class="muted">Se aplica al perfil de DemonCraft en el launcher oficial. Con 8 GB de RAM en el equipo, 4 GB es lo justo.</p>
+                <div class="setting">
+                    <span class="setting-title">Cómo juegas</span>
+                    <label class="radio"><input type="radio" name="mode" value="oficial"><span>Con cuenta de Microsoft <span class="muted">(el launcher oficial de Minecraft)</span></span></label>
+                    <label class="radio"><input type="radio" name="mode" value="otro"><span>Con otro launcher <span class="muted">(sin cuenta premium, TLauncher, SKLauncher...)</span></span></label>
+                    <div id="other-dir-row" class="hidden">
+                        <div class="dir-line"><span id="other-dir"></span><button id="btn-other-dir" class="ghost">Cambiar</button></div>
+                    </div>
+                </div>
+                <div id="ram-setting" class="setting">
+                    <label for="ram">Memoria para el juego: <strong id="ram-value">4 GB</strong></label>
+                    <input id="ram" type="range" min="2" max="12" step="1" value="4">
+                    <p class="muted">Se aplica al perfil de DemonCraft en el launcher oficial. Con 8 GB de RAM en el equipo, 4 GB es lo justo.</p>
+                </div>
+                <p id="ram-other" class="muted hidden">La memoria del juego se elige en tu launcher: dale al menos 4 GB.</p>
                 <p class="muted" id="game-dir"></p>
             </div>
 
             <div id="no-launcher" class="hidden">
-                <p>Este equipo no tiene el <strong>launcher oficial de Minecraft</strong>. Instalalo y vuelve a pulsar Jugar.</p>
+                <p>Este equipo no tiene el <strong>launcher oficial de Minecraft</strong>. Instálalo y vuelve a pulsar Jugar.</p>
                 <button id="btn-get-launcher" class="ghost">Descargar Minecraft Launcher</button>
+                <p class="switch-hint">¿Juegas sin cuenta premium o con otro launcher? <button id="btn-switch-other" class="link">Usar otro launcher</button></p>
             </div>
         </section>
 
         <aside id="right">
             <div class="panel">
                 <h2>Servidor</h2>
-                <div class="row"><span class="muted">Direccion</span><span id="server-address">—</span></div>
+                <div class="row"><span class="muted">Dirección</span><span id="server-address">—</span></div>
                 <div class="row"><span class="muted">Pack</span><span id="pack-version">—</span></div>
                 <div class="row"><span class="muted">Launcher</span><span id="launcher-kind">—</span></div>
                 <div id="links">
@@ -73,17 +116,17 @@
             </div>
             <div class="panel grow">
                 <h2>Novedades</h2>
-                <div id="news"><p class="muted">Sin novedades todavia.</p></div>
+                <div id="news"><p class="muted">Sin novedades todavía.</p></div>
             </div>
             <div id="update-banner" class="hidden">
-                <span>Hay una version nueva del launcher.</span>
+                <span>Hay una versión nueva del launcher.</span>
                 <button id="btn-update" class="ghost">Instalar y reiniciar</button>
             </div>
         </aside>
     </main>
 
     <footer>
-        <span class="muted">Al pulsar Jugar se instala o actualiza el pack y se abre el launcher oficial de Minecraft con el perfil DemonCraft listo: entra con tu cuenta y pulsa Jugar.</span>
+        <span id="footer-text" class="muted">Al pulsar Jugar se instala o actualiza el pack y se abre el launcher oficial de Minecraft con el perfil DemonCraft listo: entra con tu cuenta y pulsa Jugar.</span>
     </footer>
 
     <script src="app.js"></script>

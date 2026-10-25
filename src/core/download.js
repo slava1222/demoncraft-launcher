@@ -32,7 +32,7 @@ function request(url, { signal, headers } = {}, redirects = 0) {
         try {
             target = new URL(url);
         } catch (err) {
-            return reject(new Error("URL no valida: " + url));
+            return reject(new Error("URL no válida: " + url));
         }
         const lib = target.protocol === "https:" ? https : http;
         const options = { headers: Object.assign({ "User-Agent": config.userAgent, "Accept": "*/*" }, headers || {}), signal };
@@ -97,10 +97,17 @@ async function downloadOnce(url, dest, { sha1, onProgress, signal }) {
     const digest = hash.digest("hex");
     if (sha1 && digest !== String(sha1).toLowerCase()) {
         fs.rmSync(tmp, { force: true });
-        throw new Error(`El archivo ${path.basename(dest)} llego corrupto (sha1 ${digest.slice(0, 8)}... en vez de ${String(sha1).slice(0, 8)}...)`);
+        throw new Error(`El archivo ${path.basename(dest)} llegó corrupto (sha1 ${digest.slice(0, 8)}... en vez de ${String(sha1).slice(0, 8)}...)`);
     }
-    fs.rmSync(dest, { force: true });
-    fs.renameSync(tmp, dest);
+    try {
+        fs.rmSync(dest, { force: true });
+        fs.renameSync(tmp, dest);
+    } catch (err) {
+        fs.rmSync(tmp, { force: true });
+        // 1.1.0: Windows no deja cambiar un jar que el juego tiene abierto; eso no se arregla repitiendo la descarga
+        if (err && /^(EBUSY|EPERM)$/.test(err.code || "")) err.inUse = true;
+        throw err;
+    }
     return { sha1: digest, size: received };
 }
 
@@ -111,7 +118,7 @@ async function download(url, dest, { sha1, onProgress, signal, retries = 3 } = {
             return await downloadOnce(url, dest, { sha1, onProgress, signal });
         } catch (err) {
             lastError = err;
-            if (err && err.name === "AbortError") throw err;
+            if (err && (err.name === "AbortError" || err.inUse)) throw err;
             if (attempt < retries) await sleep(700 * attempt);
         }
     }

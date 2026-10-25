@@ -53,7 +53,7 @@ function runInstaller(javaExe, installerJar, minecraftDir, report) {
         child.on("error", reject);
         child.on("close", (code) => {
             if (code === 0) resolve(logLines);
-            else reject(new Error("El instalador de Forge fallo (codigo " + code + "):\n" + logLines.slice(-12).join("\n")));
+            else reject(new Error("El instalador de Forge falló (código " + code + "):\n" + logLines.slice(-12).join("\n")));
         });
     });
 }
@@ -69,10 +69,10 @@ async function ensureForge(manifest, { gameDir = config.gameDir, minecraftDir = 
     const installerJar = path.join(stateStore.launcherDir(gameDir), "forge", path.basename(new URL(manifest.forge.installer).pathname));
     report({ phase: "forge", message: "Descargando el instalador de Forge...", done: 0, total: 0 });
     await download(manifest.forge.installer, installerJar, { sha1: manifest.forge.sha1 || undefined, signal, onProgress: (received, total) => report({ phase: "forge", message: "Descargando el instalador de Forge...", done: received, total }) });
-    report({ phase: "forge", message: "Instalando Forge " + manifest.pack.forge + " (descarga Minecraft " + manifest.pack.minecraft + " y sus librerias; puede tardar unos minutos)..." });
+    report({ phase: "forge", message: "Instalando Forge " + manifest.pack.forge + " (descarga Minecraft " + manifest.pack.minecraft + " y sus librerías; puede tardar unos minutos)..." });
     const log = await runInstaller(javaExe, installerJar, minecraftDir, report);
     if (!forgeInstalled(minecraftDir, versionId)) {
-        throw new Error("El instalador termino pero Forge no aparece instalado:\n" + log.slice(-10).join("\n"));
+        throw new Error("El instalador terminó pero Forge no aparece instalado:\n" + log.slice(-10).join("\n"));
     }
     // el instalador añade su propio perfil "forge" al launcher: sobra, el nuestro es el de DemonCraft
     const after = stateStore.readJsonSafe(path.join(minecraftDir, "launcher_profiles.json"));
@@ -95,7 +95,7 @@ async function ensureForge(manifest, { gameDir = config.gameDir, minecraftDir = 
 function writeCustomVersion(manifest, { minecraftDir = config.minecraftDir } = {}) {
     const parentId = manifest.forge.versionId;
     const parent = stateStore.readJsonSafe(versionJsonPath(minecraftDir, parentId));
-    if (!parent) throw new Error("No encuentro la version de Forge " + parentId + " en " + minecraftDir);
+    if (!parent) throw new Error("No encuentro la versión de Forge " + parentId + " en " + minecraftDir);
     const id = config.customVersionId;
     const address = (manifest.server && manifest.server.address) ? String(manifest.server.address).trim() : "";
     const now = new Date().toISOString();

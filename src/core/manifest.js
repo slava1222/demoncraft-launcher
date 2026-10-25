@@ -26,9 +26,9 @@ function cachePath(gameDir = config.gameDir) {
 }
 
 function validate(manifest) {
-    if (!manifest || typeof manifest !== "object") throw new Error("El manifest del pack no es un JSON valido");
-    if (!manifest.pack || !manifest.pack.version) throw new Error("El manifest no dice la version del pack");
-    if (!manifest.forge || !manifest.forge.versionId || !manifest.forge.installer) throw new Error("El manifest no dice que Forge instalar");
+    if (!manifest || typeof manifest !== "object") throw new Error("El manifest del pack no es un JSON válido");
+    if (!manifest.pack || !manifest.pack.version) throw new Error("El manifest no dice la versión del pack");
+    if (!manifest.forge || !manifest.forge.versionId || !manifest.forge.installer) throw new Error("El manifest no dice qué Forge instalar");
     if (!Array.isArray(manifest.files)) manifest.files = [];
     if (!Array.isArray(manifest.bundles)) manifest.bundles = [];
     if (!Array.isArray(manifest.managed)) manifest.managed = ["mods"];
@@ -38,7 +38,7 @@ function validate(manifest) {
     if (!manifest.defaults) manifest.defaults = {};
     if (!Array.isArray(manifest.news)) manifest.news = [];
     for (const f of manifest.files) {
-        if (!f.path || !f.url || !f.sha1) throw new Error("Una entrada de files del manifest esta incompleta: " + JSON.stringify(f).slice(0, 80));
+        if (!f.path || !f.url || !f.sha1) throw new Error("Una entrada de files del manifest está incompleta: " + JSON.stringify(f).slice(0, 80));
         const rel = f.path.replace(/\\/g, "/");
         if (rel.startsWith("/") || rel.includes("../") || /^[a-zA-Z]:/.test(rel)) throw new Error("Ruta no permitida en el manifest: " + f.path);
         f.path = rel;
@@ -53,8 +53,8 @@ function validate(manifest) {
 async function fetchManifest({ gameDir = config.gameDir, url = config.manifestUrl, signal } = {}) {
     const cached = state.readJsonSafe(cachePath(gameDir));
     if (/OWNER/.test(url)) {
-        if (cached) return { manifest: validate(cached), offline: true, error: "El launcher aun no tiene configurado el repositorio del pack" };
-        throw new Error("El launcher aun no tiene configurado el repositorio del pack (config.js: OWNER)");
+        if (cached) return { manifest: validate(cached), offline: true, error: "El launcher aún no tiene configurado el repositorio del pack" };
+        throw new Error("El launcher aún no tiene configurado el repositorio del pack (config.js: OWNER)");
     }
     try {
         const manifest = validate(await fetchJson(url, { signal }));

@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld("demoncraft", {
     cancel: () => ipcRenderer.invoke("cancel"),
     setSettings: (settings) => ipcRenderer.invoke("settings:set", settings),
     openFolder: () => ipcRenderer.invoke("open:folder"),
+    pickFolder: (current) => ipcRenderer.invoke("dialog:folder", current),
     openLink: (url) => ipcRenderer.invoke("open:link", url),
     minimize: () => ipcRenderer.invoke("window:minimize"),
     close: () => ipcRenderer.invoke("window:close"),

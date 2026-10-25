@@ -11,6 +11,19 @@ al servidor (`--quickPlayMultiplayer`), así que el juego arranca ya dentro.
   JRE 17 de Adoptium.
 - El launcher no guarda ni pide cuentas: de eso se ocupa el launcher oficial.
 
+### Con otro launcher (1.1.0)
+
+Para quien no juega con el launcher oficial (Ajustes → Cómo juegas, o la pregunta del primer arranque): el botón pasa a
+**Actualizar** y el pack, Forge, la versión «DemonCraft» (con la entrada directa al servidor) y el servidor en la lista van
+a la carpeta del juego de **su** launcher (por defecto `.minecraft`; se puede elegir otra). Luego el jugador abre su
+launcher y elige esa versión. Este launcher nunca arranca el juego.
+
+- Los archivos de `mods` que no son del pack no se borran: se apartan a `mods-guardados-demoncraft`, al lado.
+- La primera vez, si ya había un `options.txt`, solo se le añaden los paquetes de texturas del pack.
+- Lo que el launcher recuerda de esa carpeta va a la suya (`.demoncraft\.launcher\otros\<id>`): en la del otro launcher
+  no se deja nada propio.
+- Con el juego abierto Windows no deja cambiar sus jars: se avisa de que hay que cerrarlo.
+
 ## Desarrollo
 
 ```
@@ -22,7 +35,11 @@ npm run dist               # instalador dist/DemonCraft-Launcher-Setup-X.Y.Z.exe
 python tools/make_art.py   # regenera logo, fondo e iconos (PIL)
 ```
 
-Variables para probar sin tocar lo real: `DEMONCRAFT_MANIFEST_URL`, `DEMONCRAFT_GAME_DIR`, `DEMONCRAFT_MINECRAFT_DIR`.
+Variables para probar sin tocar lo real: `DEMONCRAFT_MANIFEST_URL`, `DEMONCRAFT_GAME_DIR`, `DEMONCRAFT_MINECRAFT_DIR` y,
+con `cli.js`, `DEMONCRAFT_MODE=otro` + `DEMONCRAFT_OTHER_DIR` (el modo «otro launcher» sin tocar los ajustes guardados).
+
+La interfaz se puede mirar en un navegador, sin Electron: `tools/ui-preview.html?caso=primera|otro|oficial|sinlauncher|enuso`
+servido desde la carpeta del launcher (por ejemplo `python -m http.server`), con el puente de mentira de `tools/ui-stub.js`.
 
 ## Cómo se publica
 

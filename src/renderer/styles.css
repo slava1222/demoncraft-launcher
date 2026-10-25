@@ -161,5 +161,58 @@ button.ghost:hover, button.link:hover { background: rgba(212, 169, 74, 0.12); bo
 
 footer { position: relative; z-index: 1; height: 44px; display: flex; align-items: center; padding: 0 32px; font-size: 12px; }
 
+/* 1.1.0 (25/10): la pregunta del primer arranque (launcher oficial u otro launcher) */
+body.picking #status-card, body.picking #error, body.picking #other-help, body.picking #actions,
+body.picking #settings, body.picking #no-launcher { display: none !important; }
+body.picking footer span { visibility: hidden; }
+#mode-pick { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 6px; padding: 14px 16px 12px; }
+.pick-title { margin: 0 0 12px; font-family: Georgia, serif; font-weight: 400; font-size: 19px; color: var(--gold); letter-spacing: 1px; }
+#pick-modes { display: flex; flex-direction: column; gap: 10px; }
+.mode-card {
+    display: flex; flex-direction: column; gap: 4px; text-align: left; cursor: pointer;
+    padding: 12px 16px; border-radius: 6px; border: 1px solid var(--panel-border);
+    background: rgba(255, 255, 255, 0.03); color: var(--text); font: inherit;
+    transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease;
+}
+.mode-card:hover { border-color: var(--gold); background: rgba(212, 169, 74, 0.10); transform: translateX(2px); }
+.mode-name { font-family: Georgia, serif; font-size: 17px; color: var(--gold); letter-spacing: 0.5px; }
+.mode-desc { color: var(--muted); font-size: 13px; line-height: 1.4; }
+.pick-question { margin: 0 0 8px; font-family: Georgia, serif; font-size: 15px; }
+.dir-line { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.dir-line > span:first-child {
+    flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 6px 10px; border-radius: 4px; background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: 12.5px; color: var(--text);
+}
+#pick-dir-note, .warn-note { margin: 6px 0 12px; font-size: 12.5px; line-height: 1.45; }
+.warn-note { color: var(--warn); }
+.pick-buttons { display: flex; gap: 10px; align-items: center; }
+button.gold {
+    padding: 9px 20px; border: 0; border-radius: 5px; cursor: pointer;
+    background: linear-gradient(180deg, #e4bd5c, #b8863a); color: #1a0f08;
+    font-family: Georgia, serif; font-size: 15px; font-weight: 700; letter-spacing: 1px;
+    box-shadow: 0 4px 14px rgba(212, 169, 74, 0.3);
+}
+button.gold:hover { filter: brightness(1.06); }
+.pick-foot { margin: 10px 0 0; font-size: 12px; }
+
+/* con otro launcher, lo que hay que hacer despues de actualizar */
+body.settings-open #other-help { display: none; }
+#other-help { margin-top: 12px; padding: 11px 14px; border-radius: 6px; background: rgba(123, 201, 111, 0.10); border: 1px solid rgba(123, 201, 111, 0.45); }
+#other-help p { margin: 0; font-size: 13px; line-height: 1.45; }
+#other-help p + p { margin-top: 6px; font-size: 12.5px; }
+
+/* Ajustes: como juegas */
+.setting + .setting { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.08); }
+.setting-title { display: block; margin-bottom: 6px; color: var(--gold); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; }
+.radio { display: flex !important; align-items: baseline; gap: 8px; margin: 0 0 5px !important; cursor: pointer; }
+.radio input { accent-color: var(--gold); margin: 0; transform: translateY(1px); }
+.radio .muted { font-size: 12px; }
+#other-dir-row { margin: 6px 0 0 22px; }
+#ram-other { margin: 10px 0 0; font-size: 12px; }
+
+#no-launcher .switch-hint { margin: 10px 0 0; font-size: 12.5px; }
+#no-launcher .switch-hint button.link { margin-left: 6px; padding: 4px 10px; }
+
 .muted { color: var(--muted); }
 .hidden { display: none !important; }

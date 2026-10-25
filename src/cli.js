@@ -4,6 +4,7 @@
 //   node src/cli.js prepare      (todo menos abrir el launcher)
 //   node src/cli.js play
 // Variables: DEMONCRAFT_MANIFEST_URL, DEMONCRAFT_GAME_DIR, DEMONCRAFT_MINECRAFT_DIR
+// 1.1.0: DEMONCRAFT_MODE=otro y DEMONCRAFT_OTHER_DIR=<carpeta> prueban el modo "otro launcher" sin tocar los ajustes guardados
 const setup = require("./core/setup");
 
 function report(p) {
@@ -20,13 +21,19 @@ async function main() {
     }
     if (cmd === "prepare" || cmd === "play") {
         const started = Date.now();
-        const result = await (cmd === "play" ? setup.play({ report }) : setup.prepare({ report }));
+        const options = { report, mode: process.env.DEMONCRAFT_MODE || undefined, otherDir: process.env.DEMONCRAFT_OTHER_DIR || undefined };
+        const result = await (cmd === "play" ? setup.play(options) : setup.prepare(options));
         console.log(JSON.stringify({
+            mode: result.mode,
+            gameDir: result.gameDir,
             pack: result.manifest.pack,
             offline: result.offline,
             downloaded: result.sync.downloaded.length,
             deleted: result.sync.deleted,
+            movedAside: result.sync.movedAside,
+            strayDir: result.strayDir,
             created: result.sync.created,
+            merged: result.sync.merged,
             forgeInstalledNow: result.forge.installed,
             versionId: result.versionId,
             serverAdded: result.serverAdded,

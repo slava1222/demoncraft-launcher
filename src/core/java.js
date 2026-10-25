@@ -72,7 +72,7 @@ async function ensureJava({ gameDir = config.gameDir, minecraftDir = config.mine
     new AdmZip(zipPath).extractAllTo(runtimeDir, true);
     fs.rmSync(zipPath, { force: true });
     const exe = findExtractedJava(runtimeDir);
-    if (!exe || !works(exe)) throw new Error("Java se descargo pero no arranca (" + os.arch() + ")");
+    if (!exe || !works(exe)) throw new Error("Java se descargó pero no arranca (" + os.arch() + ")");
     if (state) state.javaPath = exe;
     return exe;
 }

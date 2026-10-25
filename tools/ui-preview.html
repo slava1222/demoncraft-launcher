@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>DemonCraft Launcher (vista previa)</title>
+    <!-- la interfaz de verdad (src/renderer) con el puente de mentira de tools/ui-stub.js: ver su cabecera -->
+    <base href="../src/renderer/">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <script src="../../tools/ui-stub.js"></script>
+    <script>
+        // el cuerpo de index.html sin sus scripts y, despues, app.js con el puente ya puesto
+        fetch("index.html").then((r) => r.text()).then((html) => {
+            const doc = new DOMParser().parseFromString(html, "text/html");
+            for (const s of doc.body.querySelectorAll("script")) s.remove();
+            document.body.insertAdjacentHTML("beforeend", doc.body.innerHTML);
+            const app = document.createElement("script");
+            app.src = "app.js";
+            document.body.appendChild(app);
+        });
+    </script>
+</body>
+</html>
