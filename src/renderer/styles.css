@@ -69,12 +69,16 @@ html, body {
     z-index: 1;
     display: grid;
     grid-template-columns: 1.4fr 1fr;
+    /* una sola fila del alto exacto de la ventana: sin esto la fila crecia con cada novedad y empujaba el boton
+       Jugar fuera de la ventana */
+    grid-template-rows: minmax(0, 1fr);
     gap: 24px;
     padding: 16px 32px 12px;
     height: calc(100% - 40px - 44px);
 }
 
-#left { display: flex; flex-direction: column; min-width: 0; }
+#left { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow-y: auto; }
+#left::-webkit-scrollbar { width: 0; }
 #logo { width: min(100%, 520px); height: auto; margin: 8px 0 0; filter: drop-shadow(0 6px 18px rgba(179, 38, 43, 0.35)); }
 #tagline { margin: 6px 0 18px 4px; color: var(--muted); letter-spacing: 1px; font-size: 13px; }
 
@@ -133,9 +137,15 @@ button.ghost:hover, button.link:hover { background: rgba(212, 169, 74, 0.12); bo
 #no-launcher { margin-top: 12px; padding: 12px 14px; border-radius: 6px; background: rgba(224, 166, 64, 0.12); border: 1px solid rgba(224, 166, 64, 0.5); }
 #no-launcher p { margin: 0 0 8px; }
 
-#right { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+#right { display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0; }
 .panel { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 6px; padding: 12px 16px; }
-.panel.grow { flex: 1; overflow: auto; min-height: 0; }
+/* Novedades: el titulo quieto y la lista con su propio espacio, que se rueda con la rueda del raton */
+.panel.grow { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+#news { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 8px; margin-right: -6px; }
+#news::-webkit-scrollbar { width: 6px; }
+#news::-webkit-scrollbar-track { background: transparent; }
+#news::-webkit-scrollbar-thumb { background: rgba(212, 169, 74, 0.32); border-radius: 3px; }
+#news::-webkit-scrollbar-thumb:hover { background: rgba(212, 169, 74, 0.6); }
 .panel h2 { margin: 0 0 10px; font-family: Georgia, serif; font-weight: 400; font-size: 15px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
 .row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.06); }
 .row span:last-child { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

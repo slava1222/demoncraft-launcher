@@ -1,7 +1,7 @@
 "use strict";
 // Proceso principal de Electron: la ventana, el puente con la interfaz (IPC) y la actualizacion del propio launcher.
 // Toda la logica del pack vive en src/core y no sabe nada de Electron (se prueba con src/cli.js).
-const { app, BrowserWindow, ipcMain, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, shell, screen } = require("electron");
 const path = require("path");
 const log = require("electron-log");
 const setup = require("../core/setup");
@@ -23,11 +23,14 @@ let busy = false;
 let abortController = null;
 
 function createWindow() {
+    // 29/09: tamaño fijo (la ventana ya no se estira); en una pantalla mas pequeña, lo que quepa
+    const area = screen.getPrimaryDisplay().workAreaSize;
     win = new BrowserWindow({
-        width: 1100,
-        height: 680,
-        minWidth: 940,
-        minHeight: 620,
+        width: Math.min(1100, area.width),
+        height: Math.min(680, area.height),
+        resizable: false,
+        maximizable: false,
+        fullscreenable: false,
         frame: false,
         backgroundColor: "#0b0709",
         show: false,
